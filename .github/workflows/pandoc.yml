@@ -19,8 +19,13 @@ jobs:
     - name: Install Pandoc
       run: sudo apt-get install -y pandoc
 
+    - name: Install Fonts
+      run: |
+        sudo apt-get install -y fonts-dejavu fonts-liberation
+        # Add any other fonts you need here
+
     - name: Generate DOCX
-      run: pandoc -s --toc --metadata title="Hyper-V Guide" --metadata author="Marc Mylemans" -o Hyper-V-Guide.docx $(cat book-order.txt)
+      run: pandoc -s --toc --metadata title="Hyper-V Guide" --metadata author="Marc Mylemans" -o Hyper-V-Guide.docx --reference-doc=template.docx $(cat book-order.txt)
 
     - name: Upload DOCX as artifact
       uses: actions/upload-artifact@v2
