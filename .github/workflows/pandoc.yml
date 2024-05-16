@@ -16,8 +16,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Pandoc
-      run: sudo apt-get install -y pandoc
+    - name: Install Specific Version of Pandoc
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget
+        wget https://github.com/jgm/pandoc/releases/download/2.11.4/pandoc-2.11.4-1-amd64.deb
+        sudo dpkg -i pandoc-2.11.4-1-amd64.deb
 
     - name: Install Fonts
       run: |
