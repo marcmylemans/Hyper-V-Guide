@@ -3,6 +3,7 @@
 ## 2.1 Planning Your Virtual Machine
 
 Before creating a virtual machine (VM), consider the following:
+
 - **Purpose of the VM:** What will it be used for? (e.g., testing, development, running specific applications)
 - **Operating System:** Which OS will you install on the VM? (e.g., Windows, Linux)
 - **Resource Allocation:** How much CPU, memory, and disk space will the VM need?
