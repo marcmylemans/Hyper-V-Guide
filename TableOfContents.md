@@ -17,4 +17,4 @@
 15. [Glossary](Glossary.md)
 16. [Index](Index.md)
 17. [Acknowledgements](Acknowledgements.md)
-18. (Whant To Contribute?](CONTRIBUTING.md)
+18. [Want To Contribute?](CONTRIBUTING.md)
