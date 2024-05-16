@@ -1,0 +1,29 @@
+name: Generate DOCX with Pandoc
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Pandoc
+      run: sudo apt-get install -y pandoc
+
+    - name: Generate DOCX
+      run: pandoc -s --toc --metadata title="Hyper-V Guide" --metadata author="Marc Mylemans" -o Hyper-V-Guide.docx $(cat book-order.txt)
+
+    - name: Upload DOCX as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Hyper-V-Guide.docx
+        path: Hyper-V-Guide.docx
