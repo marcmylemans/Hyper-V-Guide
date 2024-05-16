@@ -32,7 +32,7 @@ jobs:
       run: pandoc -s --toc --toc-depth=3 --metadata title="Hyper-V Guide" --metadata author="Marc Mylemans" -o Hyper-V-Guide.docx --reference-doc=template.docx $(cat book-order.txt)
 
     - name: Upload DOCX as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: Hyper-V-Guide.docx
         path: Hyper-V-Guide.docx
