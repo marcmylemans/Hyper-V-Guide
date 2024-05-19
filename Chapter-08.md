@@ -83,8 +83,6 @@ Live Migration allows you to move running VMs between nodes in a cluster without
 3. **Monitor Migration:**
    - Monitor the migration process in the **Failover Cluster Manager**.
 
-![Live Migration in Cluster](https://img.vembu.com/wp-content/uploads/2018/08/Virtual-Machine-Migration-01.png)
-
 ## 8.6 Cluster-Aware Updating
 
 ### What is Cluster-Aware Updating (CAU)?
