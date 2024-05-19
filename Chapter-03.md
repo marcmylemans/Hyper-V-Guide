@@ -55,7 +55,7 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 2b. **Select Network Adapter:**
    - In the left pane, click **Network Adapter**.
 
-4. **Select Virtual Switch:**
+3. **Select Virtual Switch:**
    - In the right pane, select the desired virtual switch from the dropdown list.
    - Click **Apply** and then **OK**.
 
