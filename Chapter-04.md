@@ -23,25 +23,28 @@ In Hyper-V, virtual hard disks (VHDs) are used to store the operating system, ap
 
 2. **Access New Virtual Hard Disk Wizard:**
    - In the right pane, click on **New**, then **Hard Disk**.
+     ![New Virtual Hard Disk Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-2.png)
 
 3. **Choose Disk Format:**
    - Select either **VHD** or **VHDX** format.
+     ![Choose Disk Format](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-3.png)
 
 4. **Choose Disk Type:**
    - **Fixed Size:** Allocates the entire disk size immediately.
    - **Dynamically Expanding:** Expands as data is added, up to the maximum size.
    - **Differencing:** Tracks changes from a parent disk, useful for test environments.
+     ![Choose Disk Type](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-4.png)
 
 5. **Specify Name and Location:**
    - Enter a name for the VHD and choose a location to store the file.
+     ![Name and Location](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-5.png)
 
 6. **Specify Disk Size:**
    - Enter the maximum size for the VHD.
+     ![Disk Size](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-6.png)
 
 7. **Complete the Wizard:**
    - Review your settings and click **Finish**.
-
-![Create VHD Wizard](https://www.altaro.com/hyper-v/wp-content/uploads/2015/10/addvhd__format.png)
 
 ### Attaching a VHD to a VM:
 
@@ -55,8 +58,6 @@ In Hyper-V, virtual hard disks (VHDs) are used to store the operating system, ap
 3. **Select Virtual Hard Disk:**
    - Browse and select the VHD file to attach.
    - Click **Apply** and then **OK**.
-
-![Attach VHD](https://askme4tech.com//sites/default/files/attach-existing-vhdx-hyperv/created-vm/step3.png)
 
 ## 4.3 Configuring Storage for VMs
 
@@ -80,8 +81,7 @@ In Hyper-V, virtual hard disks (VHDs) are used to store the operating system, ap
 2. **Extend Volume Inside VM:**
    - Inside the VM, use **Disk Management** to extend the volume.
    - Right-click the volume and select **Extend Volume**.
-
-![Expand VHD](https://www.nakivo.com/blog/wp-content/uploads/2019/07/Choose-Action-Increase-Disk-Size-in-Hyper-V.webp)
+     ![Disk Size](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-3-2.png)
 
 ## 4.4 Backing Up and Restoring VMs
 
@@ -104,8 +104,6 @@ In Hyper-V, virtual hard disks (VHDs) are used to store the operating system, ap
 2. **Apply Snapshots:**
    - In Hyper-V Manager, right-click the VM and select **Checkpoint**.
    - Choose the desired snapshot and click **Apply**.
-
-![Backup and Restore](https://www.ubackup.com/screenshot/en/acbn/others/restore-hyper-v-virtual-machine-from-windows-server-backup/select-recovery-type.png)
 
 ## 4.5 Managing Storage Performance
 
