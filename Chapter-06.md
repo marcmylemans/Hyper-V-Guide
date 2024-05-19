@@ -58,12 +58,12 @@ Regular backups and an effective recovery strategy are crucial for ensuring data
 4. **Select Backup Destination:**
    - Choose where to store the backups (local drive, network share).
 
-![Backup Destination](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-4-4.png)
+![Backup Destination](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-6-4-4.png)
 
 5. **Complete the Wizard:**
    - Review the settings and click **Finish**.
 
-![Complete the Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-4-5.png)
+![Complete the Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-6-4-5.png)
 
 
 ## 6.5 Restoring VMs with Windows Server Backup
