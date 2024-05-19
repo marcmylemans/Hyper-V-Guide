@@ -19,6 +19,7 @@ Hyper-V Replica is a disaster recovery solution that allows you to replicate VMs
 
 1. **Enable Replication:**
    - On the primary host, open **Hyper-V Manager**, right-click the VM, and select **Enable Replication**.
+     ![Enable Replication](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-05/Chapter-05-2-1.png)
 
 2. **Specify Replica Server:**
    - Enter the name of the secondary Hyper-V host.
@@ -38,8 +39,6 @@ Hyper-V Replica is a disaster recovery solution that allows you to replicate VMs
 
 7. **Complete the Wizard:**
    - Review the settings and click **Finish**.
-
-![Hyper-V Replica Setup](https://www.nakivo.com/blog/wp-content/uploads/2017/12/How-to-enable-replication-in-Hyper-V.webp)
 
 ## 5.3 Live Migration
 
@@ -66,8 +65,7 @@ Live Migration allows you to move running VMs between Hyper-V hosts without down
 
 4. **Move VM:**
    - Right-click the running VM, select **Move**, and follow the wizard to transfer the VM to another host.
-
-![Live Migration](https://www.ubackup.com/screenshot/en/acb/virtual-machine/hyper-v-live-migrations/open-hyper-v-move-wizard.png)
+     ![Move VM](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-05/Chapter-05-3-1.png)
 
 ## 5.4 Nested Virtualization
 
