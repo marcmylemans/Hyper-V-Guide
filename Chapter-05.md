@@ -105,8 +105,8 @@ Shielded VMs provide enhanced security by protecting VMs from unauthorized acces
 
 3. **Shield the VM:**
    - Use **Shielded VM Tools** to convert an existing VM or create a new shielded VM.
+     ![Enable Replication](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-05/Chapter-05-5-1.png)
 
-![Shielded VMs](https://i0.wp.com/cloudbase.it/wp-content/uploads/2016/04/vm.jpg?ssl=1)
 
 ## 5.6 Discrete Device Assignment (DDA)
 
@@ -134,8 +134,6 @@ Discrete Device Assignment allows you to assign physical hardware devices direct
      ```powershell
      Add-VMAssignableDevice -VMName <VMName> -LocationPath <DeviceLocationPath>
      ```
-
-![Discrete Device Assignment](https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/deploy/media/dda-devicemanager.png)
 
 ## 5.7 Storage Spaces Direct (S2D)
 
