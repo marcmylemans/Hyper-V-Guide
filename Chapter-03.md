@@ -30,12 +30,14 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 
 3. **Select Switch Type:**
    - Choose **External**, **Internal**, or **Private** and click **Create Virtual Switch**.
+
 ![Select Switch Type](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-3-3.png)
 
 4. **Configure Switch Settings:**
    - **Name:** Enter a name for the virtual switch.
    - **External Network:** If creating an external switch, select the network adapter to bind to.
    - **Internal/Private Network:** No additional settings are required.
+
 ![Configure Switch](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-3-4.png)
 
 5. **Apply Settings:**
@@ -47,15 +49,18 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 
 1. **Open VM Settings:**
    - In Hyper-V Manager, right-click the VM and select **Settings**.
+
 ![VM Settings](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-1.png)
 
 2. **Select Network Adapter:**
    - In the left pane, click **Network Adapter**.
+
 ![Select Network Adapter](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-2.png)
 
 3. **Select Virtual Switch:**
    - In the right pane, select the desired virtual switch from the dropdown list.
    - Click **Apply** and then **OK**.
+
 ![Select Virtual Switch](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-3.png)
 
 ## 3.5 Configuring Network Settings Inside the VM
@@ -77,7 +82,8 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 ### VLAN Configuration:
 - Virtual LANs (VLANs) allow you to segment network traffic.
 - Configure VLAN settings in the **Network Adapter** settings of the VM.
-  ![VLAN Configuration](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-6-1.png)
+
+![VLAN Configuration](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-6-1.png)
 
 ### Network Isolation:
 - Use Private and Internal switches to isolate VMs from the external network.
