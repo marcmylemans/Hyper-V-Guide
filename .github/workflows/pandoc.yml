@@ -34,5 +34,5 @@ jobs:
     - name: Upload DOCX as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Hyper-V-Guide.docx
-        path: Hyper-V-Guide.docx
+        name: MasterHyper-V.docx
+        path: MasterHyper-V.docx
