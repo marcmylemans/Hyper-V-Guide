@@ -29,7 +29,7 @@ jobs:
         # Add any other fonts you need here
 
     - name: Generate DOCX
-      run: pandoc -s --toc --toc-depth=3 --metadata title="Hyper-V Guide" --metadata author="Marc Mylemans" -o Hyper-V-Guide.docx --reference-doc=template.docx $(cat book-order.txt)
+      run: pandoc -s --toc --toc-depth=3 --metadata title="Master Hyper-V: A Comprehensive Guide" --metadata author="Marc Mylemans" -o MasterHyper-V.docx --reference-doc=template.docx $(cat book-order.txt)
 
     - name: Upload DOCX as artifact
       uses: actions/upload-artifact@v4
