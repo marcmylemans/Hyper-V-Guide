@@ -23,25 +23,25 @@ In Hyper-V, virtual hard disks (VHDs) are used to store the operating system, ap
 
 2. **Access New Virtual Hard Disk Wizard:**
    - In the right pane, click on **New**, then **Hard Disk**.
-     ![New Virtual Hard Disk Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-2.png)
+![New Virtual Hard Disk Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-2.png)
 
 3. **Choose Disk Format:**
    - Select either **VHD** or **VHDX** format.
-     ![Choose Disk Format](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-3.png)
+![Choose Disk Format](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-3.png)
 
 4. **Choose Disk Type:**
    - **Fixed Size:** Allocates the entire disk size immediately.
    - **Dynamically Expanding:** Expands as data is added, up to the maximum size.
    - **Differencing:** Tracks changes from a parent disk, useful for test environments.
-     ![Choose Disk Type](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-4.png)
+![Choose Disk Type](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-4.png)
 
 5. **Specify Name and Location:**
    - Enter a name for the VHD and choose a location to store the file.
-     ![Name and Location](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-5.png)
+![Name and Location](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-5.png)
 
 6. **Specify Disk Size:**
    - Enter the maximum size for the VHD.
-     ![Disk Size](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-6.png)
+![Disk Size](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-2-6.png)
 
 7. **Complete the Wizard:**
    - Review your settings and click **Finish**.
@@ -81,7 +81,7 @@ In Hyper-V, virtual hard disks (VHDs) are used to store the operating system, ap
 2. **Extend Volume Inside VM:**
    - Inside the VM, use **Disk Management** to extend the volume.
    - Right-click the volume and select **Extend Volume**.
-     ![Disk Size](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-3-2.png)
+![Disk Size](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-04/Chapter-04-3-2.png)
 
 ## 4.4 Backing Up and Restoring VMs
 
