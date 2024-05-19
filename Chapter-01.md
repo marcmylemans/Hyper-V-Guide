@@ -54,7 +54,7 @@ Hyper-V is a virtualization technology developed by Microsoft. It allows you to 
 3. Follow the wizard to install **Hyper-V**.
 4. Restart your server.
 
-![Enable Hyper-V on Server](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-01/enable_role_upd.png)
+![Enable Hyper-V on Server](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-01/Chapter-01-1-5.png)
 
 ## 1.6 Hyper-V Manager
 
