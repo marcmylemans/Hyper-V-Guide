@@ -42,6 +42,7 @@ Regular backups and an effective recovery strategy are crucial for ensuring data
 1. **Install Windows Server Backup:**
    - Open **Server Manager**, go to **Manage > Add Roles and Features**.
    - Select **Windows Server Backup** from the features list and install.
+
 ![Install Windows Server Backup](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-4-1.png)
 
 2. **Open Windows Server Backup:**
@@ -51,15 +52,18 @@ Regular backups and an effective recovery strategy are crucial for ensuring data
    - In Windows Server Backup, click on **Backup Schedule**.
    - Follow the wizard to select the backup configuration (full server, custom).
    - Specify the backup time and frequency.
+
 ![Backup Schedule](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-4-3.png)
 
 4. **Select Backup Destination:**
    - Choose where to store the backups (local drive, network share).
+
 ![Backup Destination](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-4-4.png)
 
 5. **Complete the Wizard:**
    - Review the settings and click **Finish**.
-    ![Complete the Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-4-5.png)
+
+![Complete the Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-4-5.png)
 
 
 ## 6.5 Restoring VMs with Windows Server Backup
@@ -71,22 +75,27 @@ Regular backups and an effective recovery strategy are crucial for ensuring data
 
 2. **Start the Recovery Wizard:**
    - In Windows Server Backup, click on **Recover**.
+
 ![Recovery Wizard](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-5-2.png)
 
 3. **Select Backup Location:**
    - Choose where the backup is stored (local drive, network share).
+
 ![Backup Location](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-5-3.png)
 
 4. **Select Backup Date:**
    - Choose the date and time of the backup to restore.
+
 ![Backup Date](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-5-4.png)
 
 5. **Select Recovery Type:**
    - Choose **Hyper-V** for VM recovery.
+
 ![Recovery Type](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-5-5.png)
 
 6. **Select Items to Recover:**
    - Choose the VMs to recover from the backup.
+
 ![Items to Recover](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-06/Chapter-06-5-6.png)
 
 7. **Specify Recovery Destination:**
