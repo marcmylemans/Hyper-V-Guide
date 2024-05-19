@@ -54,7 +54,7 @@ Hyper-V is a virtualization technology developed by Microsoft. It allows you to 
 3. Follow the wizard to install **Hyper-V**.
 4. Restart your server.
 
-![Enable Hyper-V on Server](https://www.sqlskills.com/blogs/tim/wp-content/uploads/2016/02/AddRoles1.png)
+![Enable Hyper-V on Server](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-01/enable_role_upd.png)
 
 ## 1.6 Hyper-V Manager
 
@@ -66,5 +66,3 @@ Hyper-V Manager is the main tool to manage Hyper-V. It allows you to:
 ### How to Open Hyper-V Manager:
 - **Windows 10/11:** Type **Hyper-V Manager** in the Start menu search and open it.
 - **Windows Server:** Open **Server Manager**, go to **Tools**, and select **Hyper-V Manager**.
-
-![Hyper-V Manager Interface](https://docs.oracle.com/en/database/oracle/key-vault/21.6/okvig/img/hyper-v-manager.png)
