@@ -48,11 +48,11 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 1. **Open VM Settings:**
    - In Hyper-V Manager, right-click the VM and select **Settings**.
 
-2a. **Add Network Adapter:**
+2. (a) **Add Network Adapter:**
    - In the left pane, click **Add Hardware** and select **Network Adapter**.
    - Click **Add**.
 
-2b. **Select Network Adapter:**
+2. (b) **Select Network Adapter:**
    - In the left pane, click **Network Adapter**.
 
 3. **Select Virtual Switch:**
