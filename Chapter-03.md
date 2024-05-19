@@ -30,16 +30,16 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 
 3. **Select Switch Type:**
    - Choose **External**, **Internal**, or **Private** and click **Create Virtual Switch**.
+   - ![Select Switch Type](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-3-3.png)
 
 4. **Configure Switch Settings:**
    - **Name:** Enter a name for the virtual switch.
    - **External Network:** If creating an external switch, select the network adapter to bind to.
    - **Internal/Private Network:** No additional settings are required.
+   - ![Configure Switch](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-3-4.png)
 
 5. **Apply Settings:**
    - Click **Apply** and then **OK**.
-
-![Virtual Switch Manager](https://img.veeam.com/hyperv_portal/blog/vSwitch-Manager.jpg)
 
 ## 3.4 Connecting VMs to a Virtual Switch
 
@@ -47,15 +47,16 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 
 1. **Open VM Settings:**
    - In Hyper-V Manager, right-click the VM and select **Settings**.
+   - ![VM Settings](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-1.png)
 
 2. **Select Network Adapter:**
    - In the left pane, click **Network Adapter**.
+   - ![Select Network Adapter](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-2.png)
 
 3. **Select Virtual Switch:**
    - In the right pane, select the desired virtual switch from the dropdown list.
    - Click **Apply** and then **OK**.
-
-![VM Network Adapter Settings](https://handsontek.net/images/hot2/Hyper-V/Add%20Virtual%20Switch.png)
+   - ![Select Virtual Switch](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-3.png)
 
 ## 3.5 Configuring Network Settings Inside the VM
 
@@ -71,13 +72,12 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
    - Ensure **Obtain an IP address automatically** is selected.
    - The VM will receive an IP address from a DHCP server on the network.
 
-![Network Settings](https://www.xsofthost.com/help/wp-content/uploads/2018/04/hyper-v-network-bridging-windows-VM-Network-adapter.jpg.webp)
-
 ## 3.6 Advanced Networking Features
 
 ### VLAN Configuration:
 - Virtual LANs (VLANs) allow you to segment network traffic.
 - Configure VLAN settings in the **Network Adapter** settings of the VM.
+- ![VLAN Configuration](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-6-1.png)
 
 ### Network Isolation:
 - Use Private and Internal switches to isolate VMs from the external network.
@@ -86,8 +86,6 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 ### Bandwidth Management:
 - Limit network bandwidth for each VM in the **Network Adapter** settings.
 - Ensures fair distribution of network resources.
-
-![Advanced Network Settings](https://askme4tech.com/sites/default/files/styles/resize/public/advance-features.png?itok=uVOD8dPo)
 
 ## 3.7 Troubleshooting Network Issues
 
