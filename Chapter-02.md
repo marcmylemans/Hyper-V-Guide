@@ -20,20 +20,24 @@ Before creating a virtual machine (VM), consider the following:
 
 3. **Start the New Virtual Machine Wizard:**
    - In the right pane, click on **New**, then **Virtual Machine**.
+
 ![Create Virtual Machine](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-2/Chapter-2-2-3.png)
 
 4. **Specify Name and Location:**
    - Enter a name for your VM.
    - Choose a location to store the VM files or use the default.
+
 ![Name and location](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-2/Chapter-2-2-4.png)
 
 5. **Specify Generation:**
    - Choose **Generation 1** for compatibility or **Generation 2** for newer features (UEFI, Secure Boot).
+
 ![Generation 2](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-2/Chapter-2-2-5.png)
 
 6. **Assign Memory:**
    - Allocate the amount of startup memory (e.g., 2048 MB).
    - Optionally, enable **Dynamic Memory** to optimize usage.
+
 ![Assign Memory](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-2/Chapter-2-2-6.png)
 
 7. **Configure Networking:**
@@ -42,6 +46,7 @@ Before creating a virtual machine (VM), consider the following:
 8. **Connect Virtual Hard Disk:**
    - Create a new virtual hard disk (VHD) or use an existing one.
    - Specify the size of the disk (e.g., 50 GB).
+
 ![Connect Virtual Hard Disk](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-2/Chapter-2-2-8.png)
 
 9. **Install Operating System:**
