@@ -45,7 +45,8 @@ Hyper-V is a virtualization technology developed by Microsoft. It allows you to 
 3. Check the box for **Hyper-V** and click **OK**.
 4. Restart your computer.
 
-![Enable Hyper-V](https://learn.microsoft.com/nl-nl/virtualization/hyper-v-on-windows/quick-start/media/enable_role_upd.png)
+![Enable Hyper-V](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-01/enable_role_upd.png)
+
 
 ### On Windows Server:
 1. Open **Server Manager**.
