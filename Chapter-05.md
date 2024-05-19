@@ -19,6 +19,7 @@ Hyper-V Replica is a disaster recovery solution that allows you to replicate VMs
 
 1. **Enable Replication:**
    - On the primary host, open **Hyper-V Manager**, right-click the VM, and select **Enable Replication**.
+
 ![Enable Replication](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-05/Chapter-05-2-1.png)
 
 2. **Specify Replica Server:**
@@ -65,6 +66,7 @@ Live Migration allows you to move running VMs between Hyper-V hosts without down
 
 4. **Move VM:**
    - Right-click the running VM, select **Move**, and follow the wizard to transfer the VM to another host.
+
 ![Move VM](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-05/Chapter-05-3-1.png)
 
 ## 5.4 Nested Virtualization
@@ -105,6 +107,7 @@ Shielded VMs provide enhanced security by protecting VMs from unauthorized acces
 
 3. **Shield the VM:**
    - Use **Shielded VM Tools** to convert an existing VM or create a new shielded VM.
+
 ![Enable Replication](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-05/Chapter-05-5-1.png)
 
 
