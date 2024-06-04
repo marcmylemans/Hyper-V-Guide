@@ -53,7 +53,7 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.HYPERVGUIDE_TOKEN }}
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1.1.0
@@ -63,4 +63,4 @@ jobs:
         asset_name: MasterHyper-V-${{ env.date }}.docx
         asset_content_type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.HYPERVGUIDE_TOKEN }}
