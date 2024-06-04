@@ -36,3 +36,28 @@ jobs:
       with:
         name: MasterHyper-V.docx
         path: MasterHyper-V.docx
+
+    - name: Get the current date and time
+      id: vars
+      run: echo "::set-output name=date::$(date +'%Y%m%d%H%M')"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.vars.outputs.date }}
+        release_name: Release v${{ steps.vars.outputs.date }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./MasterHyper-V.docx
+        asset_name: MasterHyper-V-${{ steps.vars.outputs.date }}.docx
+        asset_content_type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
