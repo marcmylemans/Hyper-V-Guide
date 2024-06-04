@@ -1,3 +1,11 @@
+---
+title: "Master Hyper-V"
+author: "Marc Mylemans"
+date: "$(date +'%Y-%m-%d')"
+...
+
+![Title Image](https://mylemans.online/assets/img/Hyper-V-Guide/cover.webp)
+
 # Introduction
 
 Welcome to the Hyper-V Guide, a comprehensive resource designed to help you master Microsoft's powerful virtualization platform. Whether you are new to virtualization or an experienced IT professional, this guide aims to provide you with the knowledge and skills necessary to effectively deploy, manage, and optimize Hyper-V environments.
