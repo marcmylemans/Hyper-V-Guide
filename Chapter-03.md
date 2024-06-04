@@ -98,7 +98,9 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 - Receive Segment Coalescing (RSC) is a feature that helps reduce CPU overhead by coalescing multiple TCP segments into larger segments, improving network performance. However, in some scenarios, you might need to disable RSC for compatibility or performance tuning purposes.
 
 **How to Disable RSC:**
+
 - To disable RSC on a virtual switch, you can use the following PowerShell command:
+  
   ```powershell
   Set-VMSwitch -Name vSwitchName -EnableSoftwareRsc $false
   ```
@@ -106,9 +108,11 @@ In Hyper-V, virtual networking allows VMs to communicate with each other and wit
 ### NIC Teaming with SET
 
 **What is NIC Teaming with SET?**
+
 - NIC Teaming with Switch Embedded Teaming (SET) allows you to combine multiple network adapters into a single logical interface, providing redundancy and load balancing. This enhances network performance and reliability.
 
 **How to Configure NIC Teaming with SET:**
+
 - To create a new virtual switch with embedded teaming, use the following PowerShell command:
   
   ```powershell
