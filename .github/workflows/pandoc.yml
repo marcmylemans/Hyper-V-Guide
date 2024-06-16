@@ -1,4 +1,4 @@
-name: Generate DOCX with Pandoc
+name: Generate PDF with Pandoc
 
 on:
   push:
@@ -34,11 +34,14 @@ jobs:
     - name: Generate DOCX
       run: pandoc -s --toc --toc-depth=3 --metadata title="Master Hyper-V" --metadata author="Marc Mylemans" -o MasterHyper-V.docx --reference-doc=template.docx $(cat book-order.txt)
 
-    - name: Upload DOCX as artifact
+    - name: Generate PDF from DOCX
+      run: pandoc MasterHyper-V.docx -o MasterHyper-V.pdf
+
+    - name: Upload PDF as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: MasterHyper-V.docx
-        path: MasterHyper-V.docx
+        name: MasterHyper-V.pdf
+        path: MasterHyper-V.pdf
 
     - name: Get the current date and time
       id: vars
@@ -59,8 +62,8 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./MasterHyper-V.docx
-        asset_name: MasterHyper-V-${{ env.date }}.docx
-        asset_content_type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+        asset_path: ./MasterHyper-V.pdf
+        asset_name: MasterHyper-V-${{ env.date }}.pdf
+        asset_content_type: application/pdf
       env:
         GITHUB_TOKEN: ${{ secrets.HYPERVGUIDE_TOKEN }}
