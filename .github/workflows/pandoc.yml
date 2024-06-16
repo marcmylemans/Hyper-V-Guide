@@ -31,6 +31,9 @@ jobs:
         sudo apt-get install -y fonts-dejavu fonts-liberation
         # Add any other fonts you need here
 
+    - name: Install LaTeX
+      run: sudo apt-get install -y texlive
+
     - name: Generate DOCX
       run: pandoc -s --toc --toc-depth=3 --metadata title="Master Hyper-V" --metadata author="Marc Mylemans" -o MasterHyper-V.docx --reference-doc=template.docx $(cat book-order.txt)
 
