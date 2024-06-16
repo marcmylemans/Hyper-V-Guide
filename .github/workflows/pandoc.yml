@@ -46,6 +46,12 @@ jobs:
         name: MasterHyper-V.pdf
         path: MasterHyper-V.pdf
 
+    - name: Upload DOCX as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MasterHyper-V.docx
+        path: MasterHyper-V.docx   
+
     - name: Get the current date and time
       id: vars
       run: echo "date=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
