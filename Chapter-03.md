@@ -1,155 +1,287 @@
 # Chapter 3: Networking in Hyper-V
 
-## 3.1 Introduction to Virtual Networking
+Networking is where a lot of Hyper-V setups go wrong, and it's also where things get genuinely interesting. Get this chapter right and you can build sophisticated multi-VM networks on a single laptop. Get it wrong and your VMs just sit there with no network connectivity wondering what happened.
 
-Networking is a key component in Hyper-V, as it allows virtual machines (VMs) to communicate with each other and with the outside world. Hyper-V uses **virtual switches** to enable this communication, simulating the behavior of physical network switches in a virtualized environment. Understanding how to configure virtual networking is essential for creating functional and connected VMs.
+## 3.1 How Virtual Networking Works
 
-> **Tip:** Proper virtual networking setup is crucial, especially if you’re managing multiple VMs or need them to interact with physical network devices.
+In a physical network, you have network interface cards (NICs) plugged into physical switches, which forward traffic between devices. Hyper-V recreates this model in software.
 
-## 3.2 Types of Virtual Switches
+A **virtual switch** is a software-defined switch that exists entirely inside your Hyper-V host. VMs connect to virtual switches via **virtual network adapters** -- software NICs that appear to the guest OS as real network hardware. The virtual switch handles forwarding traffic between connected VMs and, depending on the switch type, to the physical network.
 
-Hyper-V offers three types of virtual switches to manage network communication. Each serves a specific purpose:
+One important concept: when you create a virtual switch that connects to your physical NIC, your physical NIC effectively becomes part of the virtual switch. The host machine's network connectivity flows through the virtual switch rather than directly through the physical NIC. This is invisible in normal operation but explains why creating an External switch can briefly disrupt your host's network connection.
 
-### External Virtual Switch:
-- **Purpose:** Connects VMs to the physical network.
-- **Use Case:** Allows VMs to communicate with external devices, such as other computers, servers, and the internet.
+## 3.2 The Three Types of Virtual Switch
 
-### Internal Virtual Switch:
-- **Purpose:** Connects VMs to each other and to the host machine.
-- **Use Case:** Ideal for scenarios where VMs need to communicate with the host system but not the external network.
+Hyper-V gives you three switch types. Choosing the right one is the single most important networking decision you'll make.
 
-### Private Virtual Switch:
-- **Purpose:** Connects VMs only to each other.
-- **Use Case:** Useful for isolated environments where VMs don’t need access to the host or external network, such as development and testing environments.
+### External Virtual Switch
 
-> **Tip:** Choose your virtual switch type based on your specific networking requirements. For instance, use a private switch for isolation or an external switch for broader connectivity.
+An External switch binds to one of your physical network adapters. VMs connected to it are visible on your physical network -- they can reach other devices on your LAN, reach the internet, and be reached from other machines.
+
+Use this when VMs need full network access: web servers, domain controllers, anything that other machines need to talk to.
+
+> The host machine can also communicate through the External switch if you leave the "Allow management operating system to share this network adapter" checkbox enabled during creation (recommended).
+
+### Internal Virtual Switch
+
+An Internal switch creates a private network that VMs can use to talk to each other **and to the Hyper-V host**. Traffic on an Internal switch cannot reach the physical network or the internet.
+
+Use this when you want VMs to communicate with the host (for file sharing, management, etc.) but don't need external access. Also useful as a second NIC on VMs that have an External switch for internet access but also need a management network.
+
+### Private Virtual Switch
+
+A Private switch is completely isolated -- VMs on it can only communicate with other VMs connected to the same private switch. The host machine cannot communicate with them at all.
+
+Use this for test environments that need to be isolated from everything else. Two VMs running a penetration test, a cluster simulation, or a replica environment are all good candidates.
+
+**Quick comparison:**
+
+| Switch Type | VM to VM | VM to Host | VM to Physical Network |
+|---|---|---|---|
+| External | Yes | Yes | Yes |
+| Internal | Yes | Yes | No |
+| Private | Yes | No | No |
+
+Here's how those three types look in practice:
+
+```
+EXTERNAL SWITCH
+  Physical Network (router, internet, other devices)
+        |
+  +-----+------+   <- physical NIC (shared with switch)
+  | Hyper-V    |
+  |   Host     |
+  +-----+------+
+        |  External vSwitch
+   +----+----+
+  VM1       VM2     <- VMs visible on physical LAN
+
+INTERNAL SWITCH
+  +-------------+
+  | Hyper-V     |
+  |   Host      |   <- host can communicate with VMs
+  +------+------+
+         |  Internal vSwitch
+    +----+----+
+   VM1       VM2     <- VMs talk to each other and the host; no physical LAN access
+
+PRIVATE SWITCH
+  +-------------+
+  | Hyper-V     |
+  |   Host      |   <- host CANNOT communicate with VMs
+  +-------------+
+         |  Private vSwitch
+    +----+----+
+   VM1       VM2     <- VMs talk only to each other; completely isolated
+```
 
 ## 3.3 Creating a Virtual Switch
 
-Once you’ve decided which type of switch you need, the next step is to create it in Hyper-V Manager.
+1. In Hyper-V Manager, click **Virtual Switch Manager** in the right pane.
+2. Select the switch type you want to create.
+3. Click **Create Virtual Switch**.
+4. Give it a descriptive name (e.g., `External-LAN`, `Internal-Lab`, `Private-Test`).
+5. For an External switch, select which physical network adapter to bind to from the dropdown.
+6. Click **Apply**, then **OK**.
 
-### Step-by-Step Guide to Create a Virtual Switch:
+> **Creating External switches may cause a brief network interruption** on your host (usually 5-15 seconds) while Windows reconfigures the NIC binding. This is normal.
 
-1. **Open Hyper-V Manager:**
-   - Launch **Hyper-V Manager** from the Start menu or Server Manager.
+**Via PowerShell:**
+```powershell
+# Create an External switch using the adapter named "Ethernet"
+New-VMSwitch -Name "External-LAN" -NetAdapterName "Ethernet" -AllowManagementOS $true
 
-2. **Access Virtual Switch Manager:**
-   - In Hyper-V Manager, find the right pane and click on **Virtual Switch Manager**.
+# Create an Internal switch
+New-VMSwitch -Name "Internal-Lab" -SwitchType Internal
 
-3. **Select Switch Type:**
-   - Choose between **External**, **Internal**, or **Private** based on your needs, then click **Create Virtual Switch**.
+# Create a Private switch
+New-VMSwitch -Name "Private-Test" -SwitchType Private
+```
 
-   ![Select Switch Type](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-3-3.png)
+## 3.4 An Important Note About DHCP on Internal and Private Switches
 
-4. **Configure Switch Settings:**
-   - **Name:** Enter a meaningful name for your virtual switch to easily identify it later.
-   - **External Network:** If you selected an external switch, choose the network adapter to bind to.
-   - **Internal/Private Network:** No additional network adapter settings are required for these switch types.
+This trips up almost every beginner: **Internal and Private switches have no built-in DHCP server.** If you connect a VM to an Internal or Private switch and configure it to "obtain an IP address automatically," it will sit with an APIPA address (169.254.x.x) and no network connectivity.
 
-   ![Configure Switch](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-3-4.png)
+To use DHCP on an Internal or Private switch, you need one of these:
 
-5. **Apply Settings:**
-   - Once all configurations are set, click **Apply** and then **OK**.
+**Option A (simplest): Assign static IP addresses** inside each VM. Go into the VM's network settings and manually set an IP, subnet mask, and (if needed) gateway. VMs on the same switch can communicate as long as they're in the same subnet.
 
-> **Note:** Creating an external virtual switch may temporarily disrupt network connectivity on the host machine while the switch is being created.
+**Option B: Run a DHCP server VM on the same switch.** A Windows Server VM configured as a DHCP server on the Private/Internal switch will hand out addresses to other VMs on that switch.
 
-## 3.4 Connecting VMs to a Virtual Switch
+**Option C (Internal switches only): Configure Internet Connection Sharing on the host.** This lets the host share its external network connection with the Internal switch via NAT, and includes a basic DHCP service. It's messy to set up and not recommended for production, but works for simple lab scenarios.
 
-Once your virtual switch is set up, you’ll need to connect your VMs to it. This allows them to communicate with the network based on the type of switch you’ve created.
+For External switches, your physical network's DHCP server (your router) handles IP assignment automatically.
 
-### Assigning a Network Adapter to a VM:
+## 3.5 Connecting a VM to a Virtual Switch
 
-1. **Open VM Settings:**
-   - In Hyper-V Manager, right-click the VM you want to connect, and select **Settings**.
+1. Right-click the VM in Hyper-V Manager and select **Settings**.
+2. Click **Network Adapter** in the left pane.
+3. In the right pane, select your virtual switch from the dropdown.
+4. Click **Apply** and **OK**.
 
-   ![VM Settings](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-1.png)
+You can add multiple network adapters to a VM (select **Add Hardware > Network Adapter** in the VM settings). This is common for server VMs that need a management interface on an Internal switch and a service interface on an External switch.
 
-2. **Select Network Adapter:**
-   - In the left pane, click on **Network Adapter**.
+**Via PowerShell:**
+```powershell
+# Connect an existing adapter to a switch
+Connect-VMNetworkAdapter -VMName "MyVM" -SwitchName "External-LAN"
 
-   ![Select Network Adapter](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-2.png)
+# Add a new network adapter and connect it
+Add-VMNetworkAdapter -VMName "MyVM" -SwitchName "Internal-Lab"
+```
 
-3. **Select Virtual Switch:**
-   - In the right pane, choose the desired virtual switch from the dropdown list, then click **Apply** and **OK** to save the changes.
+## 3.6 Configuring IP Addresses Inside the VM
 
-   ![Select Virtual Switch](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-4-3.png)
+Once a VM is connected to an External switch, your existing DHCP server will assign it an IP automatically. For Internal and Private switches (or if you prefer static IPs), configure them inside the VM.
 
-> **Tip:** If your VM requires internet access or external communication, make sure to assign it to an external virtual switch.
+### Windows (inside the VM)
 
-## 3.5 Configuring Network Settings Inside the VM
+1. Open **Network and Sharing Center** (or Settings > Network & Internet).
+2. Click on the network adapter.
+3. Click **Properties**.
+4. Select **Internet Protocol Version 4 (TCP/IPv4)** and click **Properties**.
+5. Enter your IP address, subnet mask, and gateway.
 
-Once your VM is connected to a virtual switch, you may need to configure network settings inside the VM itself. Depending on your network setup, this could involve either static or dynamic IP addressing.
+### Linux (inside the VM)
 
-### Setting Up IP Addresses:
+For modern distributions using `netplan` (Ubuntu 18.04+):
+```yaml
+# /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  ethernets:
+    eth0:
+      addresses:
+        - 192.168.100.10/24
+      gateway4: 192.168.100.1
+      nameservers:
+        addresses: [8.8.8.8, 1.1.1.1]
+```
+Then apply with `sudo netplan apply`.
 
-1. **Static IP Configuration:**
-   - Inside the VM, open **Network and Sharing Center**.
-   - Click on the network connection and select **Properties**.
-   - Select **Internet Protocol Version 4 (TCP/IPv4)** and click **Properties**.
-   - Enter the IP address, subnet mask, gateway, and DNS servers manually.
+For distributions using `nmcli` (RHEL, Rocky Linux, AlmaLinux):
+```bash
+nmcli con mod "ens3" ipv4.addresses 192.168.100.10/24
+nmcli con mod "ens3" ipv4.gateway 192.168.100.1
+nmcli con mod "ens3" ipv4.method manual
+nmcli con up "ens3"
+```
 
-2. **Dynamic IP Configuration:**
-   - To automatically assign an IP address via DHCP, ensure **Obtain an IP address automatically** is selected.
-   - The VM will receive an IP address from a DHCP server, assuming one is available on the network.
+## 3.7 Advanced Networking Features
 
-> **Note:** If your VM doesn’t receive an IP address, verify that the virtual switch is connected to a network with a DHCP server, or consider manually assigning a static IP.
+### VLAN Configuration
 
-## 3.6 Advanced Networking Features
+VLANs (Virtual Local Area Networks) let you segment network traffic for security and organisational purposes. In Hyper-V, you can assign a VLAN ID to a VM's network adapter.
 
-Hyper-V includes several advanced networking features that can help optimize performance, enhance security, and manage network traffic.
+In VM Settings > Network Adapter > Advanced Features, enable VLAN identification and enter the VLAN ID. VMs on the same VLAN communicate as if on the same physical segment; VMs on different VLANs are isolated unless a router/firewall handles inter-VLAN routing.
 
-### VLAN Configuration:
-- **Virtual LANs (VLANs)** allow you to segment network traffic for security or organizational purposes. This is particularly useful in multi-tenant environments.
-- To configure VLAN settings, go to the **Network Adapter** settings of the VM and assign a VLAN ID.
+Via PowerShell:
+```powershell
+Set-VMNetworkAdapterVlan -VMName "MyVM" -VlanId 10 -Access
+```
 
-   ![VLAN Configuration](https://mylemans.online/assets/img/Hyper-V-Guide/Chapter-03/Chapter-03-6-1.png)
+### Bandwidth Management
 
-### Network Isolation:
-- You can isolate VMs from external networks using **Private** or **Internal** switches. This is useful for test environments where you don’t want VMs to have internet access or interact with external systems.
+You can limit how much network bandwidth a VM can consume, preventing one busy VM from starving others.
 
-### Bandwidth Management:
-- Hyper-V allows you to limit network bandwidth for each VM. You can set bandwidth limits in the **Network Adapter** settings of the VM to ensure fair distribution of resources across multiple VMs.
+In VM Settings > Network Adapter > Advanced Features, set **Minimum bandwidth** (guaranteed allocation) and **Maximum bandwidth** (hard cap) in Mbps.
 
-### Disabling RSC:
-- **Receive Segment Coalescing (RSC)** is a feature that reduces CPU overhead by coalescing multiple TCP segments into larger segments. In some scenarios, you may want to disable RSC for compatibility or performance reasons.
+Via PowerShell:
+```powershell
+Set-VMNetworkAdapter -VMName "MyVM" -MaximumBandwidth 100MB
+```
 
-   **How to Disable RSC:**
-   - Use the following PowerShell command to disable RSC on a virtual switch:
-   
-     ```powershell
-     Set-VMSwitch -Name vSwitchName -EnableSoftwareRsc $false
-     ```
+### Network Adapter Port ACLs
 
-### NIC Teaming with SET:
-- **NIC Teaming** with **Switch Embedded Teaming (SET)** allows you to combine multiple network adapters into a single logical interface. This provides both redundancy and load balancing, improving network reliability and performance.
+You can control network traffic at the virtual switch port level using Access Control Lists (ACLs). This is useful for blocking specific traffic from reaching a VM without a full firewall.
 
-   **How to Configure NIC Teaming with SET:**
-   - To create a virtual switch with embedded teaming, use the following PowerShell command:
-   
-     ```powershell
-     New-VMSwitch -Name vSwitch -NetAdapterName "Ethernet1","Ethernet2" -EnableEmbeddedTeaming $true
-     ```
+```powershell
+# Block all inbound traffic from a specific IP
+Add-VMNetworkAdapterAcl -VMName "MyVM" `
+    -Direction Inbound `
+    -Action Deny `
+    -RemoteIPAddress "192.168.1.100"
 
-   - Replace `vSwitch` with your desired switch name, and `Ethernet1`, `Ethernet2` with the names of the physical network adapters you want to team.
+# Remove that rule
+Remove-VMNetworkAdapterAcl -VMName "MyVM" `
+    -Direction Inbound `
+    -Action Deny `
+    -RemoteIPAddress "192.168.1.100"
+```
 
-> **Tip:** NIC teaming is useful in high-availability environments where network downtime or bandwidth limitations could cause issues.
+### NIC Teaming with Switch Embedded Teaming (SET)
 
-## 3.7 Troubleshooting Network Issues
+> **Enterprise / multi-NIC hosts only.** This feature requires a host with multiple physical network adapters.
 
-Even with a well-configured network, issues can still arise. Here are some common problems and solutions.
+Switch Embedded Teaming (SET) lets you combine multiple physical NICs into a single virtual switch, providing both redundancy (if one NIC fails, the other takes over) and increased bandwidth through load balancing. SET replaced the older NIC Teaming approach and is the recommended method.
 
-### Common Problems:
-- **No Network Connectivity:** Ensure the VM is connected to the correct virtual switch and check that the switch itself is properly configured.
-- **IP Address Conflict:** Verify that each VM has a unique IP address. Conflicts can cause network communication failures.
-- **Slow Network Performance:** Check if bandwidth limits are set on the VM’s network adapter, and review the network adapter configuration for potential misconfigurations.
+```powershell
+New-VMSwitch -Name "TeamedSwitch" `
+    -NetAdapterName "Ethernet1","Ethernet2" `
+    -EnableEmbeddedTeaming $true
+```
 
-### Diagnostic Tools:
-- **Ping:** Use `ping` inside the VM to test connectivity between VMs or between a VM and an external network.
-- **ipconfig:** Use `ipconfig` inside the VM to view IP configuration details and confirm correct settings.
-- **Hyper-V Manager Logs:** Review logs in Hyper-V Manager for network-related errors or issues.
+### Disabling RSC (Receive Segment Coalescing)
 
-> **Tip:** Regular monitoring and network diagnostics can help you quickly identify and resolve issues before they affect system performance.
+RSC reduces CPU overhead by merging multiple incoming TCP segments. In most cases, leave it enabled. If you're troubleshooting specific network performance or compatibility issues, disable it per-switch:
+
+```powershell
+Set-VMSwitch -Name "External-LAN" -EnableSoftwareRsc $false
+```
+
+## 3.8 Troubleshooting Network Issues
+
+The most common Hyper-V networking problems and how to fix them:
+
+**VM has no IP address on an Internal/Private switch:** Expected behaviour -- no DHCP server exists on these switch types. Assign a static IP manually (see section 3.6).
+
+**VM connected to External switch has no internet:** Check that the virtual switch is bound to the correct physical adapter. In Virtual Switch Manager, confirm the External switch shows the right NIC. Also confirm the host itself has internet access on that adapter.
+
+**VM has an IP but can't reach other devices:** Check the VM's subnet mask. A common mistake is assigning an IP in the right range but with a wrong subnet mask, causing the VM to think devices it should be able to reach directly are on a different network.
+
+**Two VMs on the same switch can't reach each other:** Verify both are connected to the same virtual switch (check VM Settings > Network Adapter for each). If using VLANs, verify both are on the same VLAN. Check firewall rules inside each VM -- Windows Firewall may be blocking ICMP (ping) by default.
+
+**Useful diagnostic commands inside VMs:**
+```powershell
+# Check IP configuration
+ipconfig /all
+
+# Test connectivity to another VM
+ping 192.168.1.10
+
+# Trace the network path
+tracert 192.168.1.10
+
+# Check if a port is open on another VM
+Test-NetConnection -ComputerName 192.168.1.10 -Port 80
+```
 
 ---
 
-With virtual networking now set up, you’ve taken a major step towards configuring a robust Hyper-V environment. In the next chapter, we’ll cover advanced VM configurations, including resource management, snapshots, and scaling.
+> **Key Takeaways**
+> - External switch: VMs join your physical network and the internet
+> - Internal switch: VMs talk to each other and the host, but not outside
+> - Private switch: VMs only talk to each other -- completely isolated
+> - Internal and Private switches have no DHCP -- assign static IPs or run your own DHCP server
+> - You can add multiple network adapters to a single VM for different network segments
+> - VLAN IDs, bandwidth limits, and port ACLs are all configurable per-VM-adapter
+
+---
+
+Storage is the third leg of the foundation -- get it wrong and performance suffers or VMs run out of space at the worst possible moment. Chapter 4 covers VHD vs VHDX, fixed vs dynamically expanding disks, how to expand a disk after the fact, and how to get the best performance from your storage configuration.
+
+---
+
+## Exercise 3: Build a Three-Switch Lab Network
+
+> **Estimated time: 45--60 minutes**
+
+This exercise creates the network topology you'll use throughout the rest of the guide.
+
+1. Create three virtual switches: one External (bound to your physical NIC), one Internal named `Lab-Internal`, one Private named `Lab-Private`.
+2. Create two VMs. Give each VM two network adapters: one connected to `External-LAN`, one connected to `Lab-Internal`.
+3. Start both VMs. The External adapters should automatically get DHCP addresses from your router. Assign static IPs on the `Lab-Internal` adapters (e.g., 10.0.0.1/24 on VM1, 10.0.0.2/24 on VM2).
+4. Verify: VM1 and VM2 can ping each other using the 10.0.0.x addresses.
+5. Verify: Both VMs can reach the internet through their External adapters.
+6. Create a third VM. Give it only a `Lab-Private` adapter with a static IP of 192.168.99.10/24.
+7. Verify: VM3 cannot ping either of the first two VMs (different switch, no route between them).

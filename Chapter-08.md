@@ -1,122 +1,239 @@
-# Chapter 8: High Availability and Failover Clustering in Hyper-V
+# Chapter 8: High Availability and Failover Clustering
 
-## 8.1 Introduction to High Availability
+> **Enterprise environments.** This chapter assumes you have at least two physical servers running Windows Server, shared storage accessible to all servers, and both servers joined to an Active Directory domain. Home lab readers: you can read this chapter for understanding, but you'll need two physical machines and enterprise storage to implement it. Skip to Chapter 9 if you're working with a single host.
 
-High availability (HA) ensures that virtual machines (VMs) and services are operational with minimal downtime, even during hardware failures or maintenance. Hyper-V supports HA through failover clustering.
+High availability (HA) in Hyper-V means that if a physical server fails, its virtual machines automatically restart on another server in the cluster -- typically within a minute or two -- without any manual intervention. This is achieved through **Failover Clustering**: a Windows Server feature that groups multiple hosts into a cooperative cluster where each host monitors the others.
 
-## 8.2 Understanding Failover Clustering
+## 8.1 How Failover Clustering Works
 
-Failover clustering is a feature that allows multiple servers (nodes) to work together to provide continuous service. If one node fails, another node in the cluster takes over the workload.
+A Failover Cluster is a group of physical servers (called **nodes**) that work together. Each node runs the Hyper-V role and can host VMs. All nodes have access to the same shared storage, which is where the VM files live.
 
-### Key Components:
-- **Cluster Nodes:** Physical servers that are part of the cluster.
-- **Cluster Shared Volumes (CSV):** Shared storage accessible by all nodes in the cluster.
-- **Heartbeat:** Communication between nodes to monitor health and status.
-- **Failover:** Process of moving resources from a failed node to an operational node.
+The cluster continuously monitors the health of all nodes using a **heartbeat** network (a dedicated network between nodes used only for cluster communication). If a node stops responding to heartbeats, the cluster detects the failure and initiates failover: the VMs that were running on the failed node are restarted on the surviving nodes.
 
-## 8.3 Setting Up a Hyper-V Failover Cluster
+The cluster also needs to agree on what a "majority" is, to avoid **split-brain** -- the dangerous scenario where two halves of a cluster both think the other half has failed and both try to take control simultaneously. This is managed by **quorum**.
 
-### Prerequisites:
-- **Windows Server Edition:** Failover clustering is available in Windows Server editions (Standard and Datacenter).
-- **Domain Membership:** All cluster nodes must be part of the same Active Directory domain.
-- **Network Configuration:** Reliable network connections between all nodes.
-- **Shared Storage:** Accessible by all nodes, such as iSCSI or Fibre Channel storage.
+### Quorum
 
-### Step-by-Step Guide:
+Quorum is the mechanism that prevents split-brain. The cluster has a vote count, and a majority of votes must agree that the cluster is healthy for it to operate. If a node fails and the cluster loses its majority, it stops operating rather than risk split-brain.
 
-1. **Install Failover Clustering Feature:**
-   - On each node, open **Server Manager**, go to **Manage > Add Roles and Features**.
-   - Select **Failover Clustering** and install.
+**Quorum modes:**
 
-2. **Validate Configuration:**
-   - Open **Failover Cluster Manager**.
-   - Click on **Validate Configuration**.
-   - Add all nodes to be validated and run all tests to ensure compatibility.
+| Mode | How It Works | Best For |
+|---|---|---|
+| Node Majority | Each node votes; majority required | Clusters with an odd number of nodes |
+| Node and Disk Majority | Nodes + a small "disk witness" on shared storage vote | Clusters with an even number of nodes |
+| Node and File Share Majority | Nodes + a file share on another server vote | Clusters where the disk witness isn't available or desired |
+| Cloud Witness | Nodes + an Azure Blob Storage object vote | Modern deployments; requires internet connectivity |
 
-3. **Create the Cluster:**
-   - In **Failover Cluster Manager**, click on **Create Cluster**.
-   - Add the nodes and configure the cluster name and IP address.
-   - Complete the wizard to create the cluster.
+For a two-node cluster (the most common small deployment), you need a tiebreaker: either a Disk Witness or a File Share Witness. Without it, either node failing takes the cluster below quorum and the surviving node shuts down.
 
-4. **Configure Cluster Shared Volumes (CSV):**
-   - In **Failover Cluster Manager**, right-click **Storage > Disks**.
-   - Add disks to the cluster and convert them to CSVs.
+> **Getting quorum wrong is a common cause of cluster outages.** Configure it carefully based on your node count.
 
-5. **Enable Hyper-V Role on All Nodes:**
-   - Ensure the Hyper-V role is installed and configured on each node.
+## 8.2 Prerequisites
 
-6. **Configure VM for High Availability:**
-   - In **Failover Cluster Manager**, right-click the VM and select **Configure Role**.
-   - Follow the wizard to make the VM highly available.
+Before building a Failover Cluster:
 
-![Failover Cluster Setup](https://www.veeam.com/blog/wp-content/uploads/2014/09/1-adding-the-FC-feature.png)
+- **Windows Server edition:** Standard or Datacenter on all nodes.
+- **Active Directory domain:** All nodes must be domain-joined.
+- **Identical or compatible hardware:** Not strictly required, but strongly recommended. Mismatched hardware can cause migration issues.
+- **Dedicated networks:** At minimum, separate networks for management, cluster heartbeat, and VM traffic. Shared storage traffic should also be on a dedicated network.
+- **Shared storage:** All nodes must be able to access the same storage. Options: iSCSI, Fibre Channel, or SMB 3.0 file shares. Storage Spaces Direct (covered in section 8.7) pools the local disks of the nodes instead.
+- **Cluster Validation:** Run the validation tool before creating the cluster and fix all failures it reports.
 
-## 8.4 Managing Failover Clusters
+## 8.3 Building a Failover Cluster: Step by Step
 
-### Cluster Management:
+### Step 1: Install the Failover Clustering Feature
 
-- **Cluster-Aware Updating:** Automatically update cluster nodes without downtime.
-- **Failover and Failback:** Manually move VMs between nodes for maintenance or testing.
-- **Quorum Configuration:** Ensure the cluster can continue to operate if some nodes fail.
+On each node:
+```powershell
+Install-WindowsFeature -Name Failover-Clustering -IncludeManagementTools
+Install-WindowsFeature -Name Hyper-V -IncludeManagementTools
+```
 
-### Monitoring and Maintenance:
+### Step 2: Validate the Configuration
 
-- **Cluster Events:** Monitor cluster events and health status in **Failover Cluster Manager**.
-- **Resource Balancing:** Distribute VMs and workloads evenly across nodes.
-- **Regular Testing:** Perform regular failover tests to ensure HA functionality.
+This step is mandatory. Running without a passed validation report is unsupported and risks data corruption.
 
-## 8.5 Live Migration in a Cluster
+```powershell
+Test-Cluster -Node "Node01","Node02" -Include "Storage","Network","Inventory","System Configuration"
+```
 
-### What is Live Migration?
+Review the HTML report that's generated. Fix all **Failures** before proceeding. **Warnings** should be investigated but may not block cluster creation.
 
-Live Migration allows you to move running VMs between nodes in a cluster without downtime. This feature is useful for load balancing, maintenance, and minimizing downtime.
+### Step 3: Create the Cluster
 
-### Performing Live Migration:
+```powershell
+New-Cluster -Name "HVCluster01" `
+            -Node "Node01","Node02" `
+            -StaticAddress "192.168.1.100"  # Cluster IP address
+```
 
-1. **Open Failover Cluster Manager:**
-   - Navigate to **Roles** and select the VM to be moved.
+### Step 4: Configure Quorum
 
-2. **Initiate Live Migration:**
-   - Right-click the VM, select **Move > Live Migration > Select Node**.
-   - Choose the target node and initiate the migration.
+For a two-node cluster with a file share witness:
+```powershell
+Set-ClusterQuorum -FileShareWitness "\\FileServer\ClusterWitness"
+```
 
-3. **Monitor Migration:**
-   - Monitor the migration process in the **Failover Cluster Manager**.
+For a cloud witness (requires an Azure storage account):
+```powershell
+Set-ClusterQuorum -CloudWitness `
+                  -AccountName "mystorageaccount" `
+                  -AccessKey "your-storage-account-key"
+```
 
-## 8.6 Cluster-Aware Updating
+### Step 5: Add Shared Storage to the Cluster
 
-### What is Cluster-Aware Updating (CAU)?
+1. Open **Failover Cluster Manager** and connect to your cluster.
+2. Navigate to **Storage > Disks**.
+3. Click **Add Disk**. Shared disks visible to all nodes appear in the list.
+4. Select them and add to the cluster.
+5. Right-click the disks you want as CSVs > **Add to Cluster Shared Volumes**.
 
-CAU is a feature that automates the process of updating cluster nodes while maintaining high availability. It sequentially updates each node, ensuring that services remain operational.
+### Step 6: Make VMs Highly Available
 
-### Configuring CAU:
+For VMs already on the cluster's shared storage:
 
-1. **Open CAU Tool:**
-   - Open **Failover Cluster Manager**, go to **Cluster-Aware Updating**.
+1. In Failover Cluster Manager, navigate to **Roles**.
+2. Click **Configure Role** in the right pane.
+3. Select **Virtual Machine**.
+4. Select the VMs you want to make highly available.
+5. Complete the wizard.
 
-2. **Configure Updating Options:**
-   - Set the update schedule and select the update options.
-   - Specify the script to run pre and post updates if needed.
+```powershell
+# Add a VM to the cluster (make it highly available)
+Add-ClusterVirtualMachineRole -VMName "MyVM"
+```
 
-3. **Apply Updates:**
-   - Initiate the updating process and monitor the progress.
+## 8.4 Managing a Failover Cluster
 
-## 8.7 Troubleshooting High Availability Issues
+### Moving VMs Between Nodes
 
-### Common Issues:
+**Live Migration** (Chapter 5) works within a cluster and is the preferred way to move running VMs for maintenance. When you need to take a node offline for updates:
 
-- **Node Failures:** Identify and replace faulty hardware.
-- **Network Issues:** Ensure reliable network connections between nodes.
-- **Storage Failures:** Monitor and maintain shared storage infrastructure.
+1. In Failover Cluster Manager, right-click the node > **Pause > Drain Roles**.
+2. This Live Migrates all VMs to other nodes before pausing the node.
+3. Perform your maintenance.
+4. Right-click the node > **Resume > Fail Roles Back** to return VMs to the original node.
 
-### Diagnostic Tools:
+```powershell
+# Drain all roles from a node before maintenance
+Suspend-ClusterNode -Name "Node01" -Drain
+```
 
-- **Failover Cluster Manager:** Check for errors and warnings in the cluster events.
-- **Performance Monitor:** Monitor resource usage and performance metrics.
-- **Event Viewer:** Review system and application logs for related errors.
+### Cluster-Aware Updating (CAU)
 
-### Best Practices for Troubleshooting:
+CAU automates Windows Update patching across cluster nodes while maintaining HA. It updates one node at a time, draining its VMs first, applying updates, restarting, then moving to the next node.
 
-- **Regular Maintenance:** Perform regular maintenance and updates on cluster nodes.
-- **Redundancy:** Ensure redundancy for critical components (network, storage).
-- **Documentation:** Maintain detailed documentation of the cluster configuration and procedures.
+1. In Failover Cluster Manager, navigate to **Cluster-Aware Updating**.
+2. Configure the update schedule and source (Windows Update, WSUS, or local).
+3. Initiate an update run -- CAU handles the drain/update/restart cycle automatically.
+
+### Monitoring Cluster Health
+
+```powershell
+# Get the status of all cluster resources
+Get-ClusterResource
+
+# Check which node each VM is currently running on
+Get-ClusterGroup | Where-Object {$_.GroupType -eq "VirtualMachine"} |
+    Select-Object Name, OwnerNode, State
+
+# Get cluster events from the last 24 hours
+Get-ClusterLog -Destination "C:\ClusterLog" -UseLocalTime -TimeSpan 1440
+```
+
+## 8.5 Testing Your HA Configuration
+
+Build confidence in your cluster before it's needed in an emergency:
+
+**Simulate a node failure:**
+```powershell
+# Stop the cluster service on one node (simulates a failure without physically pulling the power)
+Stop-Service -Name ClusSvc -Force -ComputerName "Node01"
+```
+Watch VMs restart on the other node. Measure how long failover takes. Verify VMs are accessible after failover.
+
+**Simulate a controlled failover:**
+In Failover Cluster Manager, right-click a VM > **Move > Best Possible Node**. This performs a Live Migration to the best available node.
+
+> **Test failovers regularly.** An HA system you've never tested under failure conditions is an HA system you cannot trust. Run a simulated failover quarterly.
+
+## 8.6 Troubleshooting High Availability Issues
+
+**Node failing to join the cluster:**
+- Verify the node can reach all other nodes over all cluster networks.
+- Check that the cluster service account has appropriate permissions.
+- Review cluster event logs: Event Viewer > Applications and Services Logs > Microsoft > Windows > FailoverClustering.
+
+**VMs not failing over after node failure:**
+- Check that the VMs are configured as Highly Available in Failover Cluster Manager (they must appear under Roles, not just in the node's VM list).
+- Verify shared storage is accessible from all nodes.
+- Check cluster quorum status: `Get-ClusterQuorum`.
+
+**Split-brain prevention -- why quorum matters:**
+If half your nodes lose network connectivity to the other half, both halves could try to run the same VMs. Quorum prevents this: only the side with a majority of votes continues operating. The minority side shuts down its cluster service. Configure your quorum carefully so that the side with your most important VMs is the side that survives a split.
+
+## 8.7 Azure Stack HCI: The Modern Alternative
+
+> **Worth knowing for new deployments.**
+
+Azure Stack HCI is Microsoft's current recommended platform for hyper-converged infrastructure. Under the hood, it uses the same Failover Clustering and Hyper-V technology covered in this chapter, but it adds:
+
+- **Azure Arc integration:** Manage and monitor your on-premises cluster from the Azure portal.
+- **Automated updates:** Microsoft manages the update baseline for the HCI stack.
+- **Storage Spaces Direct (S2D) out of the box:** No dedicated shared storage hardware required -- the nodes pool their local disks.
+- **Simplified licensing:** Subscription-based per-node rather than the complex Windows Server Datacenter + System Center licensing.
+
+If you're evaluating a new HA Hyper-V deployment and aren't already invested in traditional Windows Server Failover Clustering, Azure Stack HCI is worth evaluating. It's designed for exactly this use case.
+
+## 8.8 Storage Spaces Direct (S2D)
+
+> **Requires: Windows Server Datacenter edition + Failover Cluster**
+
+Storage Spaces Direct pools the local disks of multiple Hyper-V hosts into a single, redundant storage pool that all nodes can access -- no dedicated SAN or NAS required. This is the hyper-converged infrastructure (HCI) model.
+
+```powershell
+# Enable Storage Spaces Direct on an existing cluster
+Enable-ClusterStorageSpacesDirect
+
+# Create a storage pool and volumes via Windows Admin Center (recommended)
+# or via PowerShell:
+New-Volume -StoragePoolFriendlyName "S2D*" `
+           -FriendlyName "VMStorage" `
+           -FileSystem CSVFS_ReFS `
+           -Size 2TB
+```
+
+S2D uses cache tiers (fast NVMe or SSD for caching) and capacity tiers (larger HDDs or SSDs for bulk storage) to deliver SAN-class performance from commodity hardware.
+
+---
+
+> **Key Takeaways**
+> - Failover Clustering keeps VMs running through hardware failures by automatically restarting them on surviving nodes
+> - Quorum prevents split-brain -- configure it carefully, especially for two-node clusters
+> - Always run Cluster Validation and fix all failures before creating a cluster
+> - Cluster-Aware Updating patches nodes without downtime by draining VMs first
+> - Test failovers regularly -- quarterly at minimum
+> - Azure Stack HCI is the modern evolution of Windows Server Failover Clustering -- worth evaluating for new deployments
+
+---
+
+A cluster keeps your VMs running if hardware fails -- but a misconfigured host or a compromised account can take down even a well-clustered environment. Chapter 9 covers the security practices that protect your hosts and VMs from attack and unauthorized access: the controls that matter, what to lock down first, and how to verify your posture.
+
+---
+
+## Exercise 8: Cluster Simulation (Two Physical Hosts or Nested VMs)
+
+> **Estimated time: 90--120 minutes** -- This is the most complex exercise in the guide. Allocate at least two hours and don't start it twenty minutes before a meeting.
+
+If you have two physical hosts (or set up two nested Hyper-V VMs as in Exercise 5):
+
+1. Install Failover Clustering on both: `Install-WindowsFeature -Name Failover-Clustering -IncludeManagementTools`.
+2. Run `Test-Cluster -Node "Host1","Host2"` and review the report.
+3. Create a cluster: `New-Cluster -Name "LabCluster" -Node "Host1","Host2" -StaticAddress "10.0.0.50"`.
+4. Configure a File Share Witness using a network share on a third machine (or your management PC).
+5. Create a VM on shared storage accessible to both nodes.
+6. Make the VM highly available: `Add-ClusterVirtualMachineRole -VMName "TestVM"`.
+7. While the VM is running, stop the cluster service on the node that owns it: `Stop-Service ClusSvc -Force`.
+8. Observe the VM failing over to the other node. Time how long it takes.

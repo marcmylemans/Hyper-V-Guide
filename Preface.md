@@ -1,35 +1,47 @@
 # Introduction
 
-Welcome to the Hyper-V Guide, a comprehensive resource designed to help you master Microsoft's powerful virtualization platform. Whether you are new to virtualization or an experienced IT professional, this guide aims to provide you with the knowledge and skills necessary to effectively deploy, manage, and optimize Hyper-V environments.
+So you want to run virtual machines. Good call.
+
+Whether you're a student building your first home lab, an IT professional who's been meaning to get your hands dirty with Hyper-V for years, or a sysadmin who inherited a bunch of VMs and needs to actually understand what's going on -- this guide is for you.
 
 ## Why Hyper-V?
 
-Virtualization has become a cornerstone of modern IT infrastructure, offering numerous benefits such as improved resource utilization, enhanced disaster recovery, and simplified management. Hyper-V, a feature-rich virtualization platform developed by Microsoft, is a key player in this space. It provides robust performance, seamless integration with other Microsoft services, and a wide range of features that cater to the needs of businesses of all sizes.
+Microsoft built Hyper-V directly into Windows. That means if you're running Windows 10 Pro, Windows 11 Pro, or Windows Server, you already own a production-grade hypervisor. You don't need to buy extra software, and you don't need a dedicated machine. Your existing laptop or workstation can run multiple virtual machines right now.
 
-## About This Guide
+Hyper-V is also what powers Azure under the hood. Learning it here, in your own environment, puts you one step closer to understanding how cloud infrastructure actually works.
 
-This guide is structured to take you from the basics of Hyper-V to advanced topics, ensuring a smooth learning curve. Each chapter is dedicated to a specific aspect of Hyper-V, providing detailed explanations, step-by-step instructions, and best practices. Here's a brief overview of what you can expect:
+## How This Guide Is Structured
 
-- **Chapter 1: Introduction to Hyper-V** - An overview of Hyper-V and its benefits.
-- **Chapter 2: Setting Up Your First Virtual Machine** - Step-by-step instructions for creating and configuring virtual machines.
-- **Chapter 3: Networking in Hyper-V** - Detailed guidance on setting up and managing virtual networks.
-- **Chapter 4: Storage in Hyper-V** - An exploration of storage options and configurations.
-- **Chapter 5: Advanced Hyper-V Features** - Insights into advanced features like Hyper-V Replica and Live Migration.
-- **Chapter 6: Backup and Recovery in Hyper-V** - Techniques for backing up and restoring VMs.
-- **Chapter 7: Monitoring and Performance Tuning in Hyper-V** - Tips for optimizing performance.
-- **Chapter 8: High Availability and Failover Clustering in Hyper-V** - Strategies for ensuring high availability.
-- **Chapter 9: Security Best Practices in Hyper-V** - Security measures to protect your VMs and data.
-- **Chapter 10: Automation and Scripting with PowerShell** - Automating tasks using PowerShell scripts.
-- **Chapter 11: Integration with Microsoft Services** - Integrating Hyper-V with other Microsoft services.
-- **Chapter 12: Troubleshooting and Support** - Common troubleshooting steps and support resources.
-- **Chapter 13: Best Practices and Optimization** - Best practices for optimizing your Hyper-V environment.
+This guide is split into two parts -- and that split is intentional.
 
-## Who Should Read This Guide?
+**Part 1 (Chapters 1-6)** covers everything you need to get a Hyper-V environment running on a single machine. By the end of Chapter 6, you'll have created VMs, configured virtual networks, managed storage, and set up your first backups. This part works on a single Windows 10/11 PC or a standalone Windows Server. No enterprise infrastructure required.
 
-This guide is intended for system administrators, IT professionals, and anyone interested in learning about virtualization with Hyper-V. Whether you are setting up a small test environment or managing a large-scale virtual infrastructure, this guide provides valuable insights and practical advice to help you succeed.
+**Part 2 (Chapters 7-13)** goes deeper into the enterprise side: performance tuning, high-availability clustering, security hardening, PowerShell automation, and integration with Microsoft's cloud services. Some of this requires Windows Server and multiple physical hosts. Each chapter that assumes enterprise infrastructure will say so upfront.
 
-## Acknowledgments
+**Quick reference by goal:**
 
-We would like to thank the Microsoft Hyper-V team for their continuous efforts in developing and enhancing this powerful virtualization platform. We also extend our gratitude to the Hyper-V community for their contributions and support.
+| Your situation | Where to start | What you can skip |
+|---|---|---|
+| Home lab, brand new to Hyper-V | Chapter 1 | Ch8 (clustering needs multiple servers) |
+| Windows Server admin, Hyper-V beginner | Chapter 1 | Nothing -- it all applies |
+| Just need the PowerShell commands | Chapter 10 | Reference Ch3/4 for context |
+| Building an HA cluster | Start at Ch8 | You may already know Ch1-4 |
+| Need to understand backup options | Chapter 6 | - |
 
-We hope you find this guide helpful and informative. Happy virtualizing!
+## What You'll Build
+
+By the end of Part 1, your setup will look something like this:
+
+- A Hyper-V host (your Windows PC or server)
+- One or more virtual machines running inside it
+- At least two virtual switches: one connected to your physical network, one isolated for testing
+- At least one VHDX disk, correctly sized and formatted
+- A working backup schedule
+
+It's a small but complete virtualisation environment -- and it's the same fundamental architecture that scales to thousands of VMs in a datacenter.
+
+## A Note on Windows Versions
+
+Throughout this guide, examples use Windows Server 2022 and Windows 11. Most of what's shown works identically on Windows Server 2019 and Windows 10. Where a feature requires a specific version or edition, that's noted clearly.
+
+Let's get started.

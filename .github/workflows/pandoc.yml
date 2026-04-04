@@ -1,4 +1,4 @@
-name: Generate PDF with Pandoc
+name: Build and Release Master Hyper-V Guide
 
 on:
   push:
@@ -19,26 +19,51 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install Specific Version of Pandoc
+    - name: Install Latest Pandoc
       run: |
         sudo apt-get update
         sudo apt-get install -y wget
-        wget https://github.com/jgm/pandoc/releases/download/2.11.4/pandoc-2.11.4-1-amd64.deb
-        sudo dpkg -i pandoc-2.11.4-1-amd64.deb
+        PANDOC_VERSION=$(wget -qO- https://api.github.com/repos/jgm/pandoc/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        echo "Installing pandoc ${PANDOC_VERSION}"
+        wget "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb"
+        sudo dpkg -i "pandoc-${PANDOC_VERSION}-1-amd64.deb"
+        pandoc --version
 
     - name: Install Fonts
       run: |
-        sudo apt-get install -y fonts-dejavu fonts-liberation
-        # Add any other fonts you need here
+        sudo apt-get install -y fonts-dejavu fonts-liberation fonts-liberation2
 
     - name: Install LaTeX
-      run: sudo apt-get install -y texlive
+      # texlive-latex-extra includes longtable, booktabs, fancyvrb, and other
+      # packages that pandoc's LaTeX template requires for tables and code blocks.
+      # texlive-fonts-recommended adds lmodern, which gives clean PDF body text.
+      run: sudo apt-get install -y texlive-latex-extra texlive-fonts-recommended
 
     - name: Generate DOCX
-      run: pandoc -s --toc --toc-depth=3 --metadata title="Master Hyper-V" --metadata author="Marc Mylemans" -o MasterHyper-V.docx --reference-doc=template.docx $(cat book-order.txt)
+      run: |
+        pandoc -s --toc --toc-depth=3 \
+          --metadata title="Master Hyper-V" \
+          --metadata author="Marc Mylemans" \
+          --reference-doc=template.docx \
+          -o MasterHyper-V.docx \
+          $(cat book-order.txt)
 
-    - name: Generate PDF from DOCX
-      run: pandoc MasterHyper-V.docx -o MasterHyper-V.pdf
+    - name: Generate PDF
+      # PDF is generated directly from the markdown source files using pandoc's
+      # LaTeX engine. This produces a clean, typeset PDF without going through
+      # DOCX (which required LibreOffice and produced inconsistent output).
+      run: |
+        pandoc -s --toc --toc-depth=3 \
+          --metadata title="Master Hyper-V" \
+          --metadata author="Marc Mylemans" \
+          --variable geometry:margin=1in \
+          --variable fontsize=11pt \
+          --variable colorlinks=true \
+          --variable linkcolor=0F4761 \
+          --variable urlcolor=156082 \
+          --variable toccolor=0F4761 \
+          -o MasterHyper-V.pdf \
+          $(cat book-order.txt)
 
     - name: Upload PDF as artifact
       uses: actions/upload-artifact@v4
@@ -50,7 +75,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: MasterHyper-V.docx
-        path: MasterHyper-V.docx   
+        path: MasterHyper-V.docx
 
     - name: Get the current date and time
       id: vars
@@ -67,12 +92,22 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.HYPERVGUIDE_TOKEN }}
 
-    - name: Upload Release Asset
+    - name: Upload PDF Release Asset
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./MasterHyper-V.pdf
         asset_name: MasterHyper-V-${{ env.date }}.pdf
         asset_content_type: application/pdf
+      env:
+        GITHUB_TOKEN: ${{ secrets.HYPERVGUIDE_TOKEN }}
+
+    - name: Upload DOCX Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./MasterHyper-V.docx
+        asset_name: MasterHyper-V-${{ env.date }}.docx
+        asset_content_type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
       env:
         GITHUB_TOKEN: ${{ secrets.HYPERVGUIDE_TOKEN }}
