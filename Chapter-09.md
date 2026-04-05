@@ -34,16 +34,16 @@ The Hyper-V host should be a dedicated Hyper-V host -- not also a file server, a
 
 ### Restrict Administrative Access
 
-Who should be able to manage Hyper-V? Keep that list short.
+Who can manage your Hyper-V host? Keep that list short and make it deliberate.
 
-**The Hyper-V Administrators local group** grants a user the ability to create, start, stop, and manage VMs without requiring full local administrator rights. Use this group instead of adding users to the Administrators group when they only need VM management access.
+Windows provides a built-in **Hyper-V Administrators** local group specifically for this purpose. Members of this group can create, start, stop, and manage VMs without holding full local administrator rights on the host. This is an important distinction: a VM operator doesn't need the ability to install software, change firewall rules, or access host-level files. Add users to Hyper-V Administrators rather than to the Administrators group unless they genuinely need host-level control.
 
 ```powershell
 # Add a user to the Hyper-V Administrators group
 Add-LocalGroupMember -Group "Hyper-V Administrators" -Member "DOMAIN\HVAdmins"
 ```
 
-**Role-Based Access Control via Active Directory:** In larger environments, create AD security groups for Hyper-V roles (VM operators, VM administrators, host administrators) and delegate the appropriate permissions at each level. Never give individuals direct access -- always use groups.
+In larger environments, layer Active Directory security groups on top of this. Create distinct groups for VM operators (can start and stop VMs), VM administrators (can also create and configure VMs), and host administrators (full host access). Assign permissions to groups, not individuals -- this ensures access is auditable, revocable, and survives personnel changes without anyone manually tracking who has what.
 
 ### Firewall Configuration
 

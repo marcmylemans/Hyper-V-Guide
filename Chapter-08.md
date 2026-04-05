@@ -4,6 +4,8 @@
 
 High availability (HA) in Hyper-V means that if a physical server fails, its virtual machines automatically restart on another server in the cluster -- typically within a minute or two -- without any manual intervention. This is achieved through **Failover Clustering**: a Windows Server feature that groups multiple hosts into a cooperative cluster where each host monitors the others.
 
+At 3:17 AM, Node01 stops responding to heartbeats. The cluster detects the silence, confirms Node02 can still reach the witness, and reaches quorum without Node01. Within 90 seconds, every VM that was running on Node01 is restarted on Node02. The on-call engineer's phone never rings. By the time the morning shift arrives and checks Failover Cluster Manager, they see Node01 marked as down and a note in the event log: failover completed, all VMs healthy. That's what high availability actually delivers.
+
 ## 8.1 How Failover Clustering Works
 
 A Failover Cluster is a group of physical servers (called **nodes**) that work together. Each node runs the Hyper-V role and can host VMs. All nodes have access to the same shared storage, which is where the VM files live.
@@ -28,6 +30,10 @@ Quorum is the mechanism that prevents split-brain. The cluster has a vote count,
 For a two-node cluster (the most common small deployment), you need a tiebreaker: either a Disk Witness or a File Share Witness. Without it, either node failing takes the cluster below quorum and the surviving node shuts down.
 
 > **Getting quorum wrong is a common cause of cluster outages.** Configure it carefully based on your node count.
+
+This is why HA clusters are standard in enterprise environments that can't afford downtime: not because failures are common, but because failures are unpredictable. A cluster that handles a node failure automatically -- in the middle of the night, without anyone being paged -- is infrastructure that earns trust.
+
+The decision to build a cluster is also a decision about operational philosophy. A single powerful host is simpler to manage and cheaper to buy. But when it fails, everything stops and someone has to respond immediately. A cluster costs more and requires more planning, but shifts the operational posture from "respond to failures" to "review failures in the morning."
 
 ## 8.2 Prerequisites
 

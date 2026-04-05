@@ -78,8 +78,8 @@ M
   - Dynamic Memory, Chapter 2
 - Monitoring
   - Performance Monitor, Chapter 7
-  - Resource Monitor, Chapter 7
-  - System Center Operations Manager (SCOM), Chapter 7
+  - Windows Admin Center dashboard, Chapter 7
+  - System Center Operations Manager (SCOM), Chapter 13
   
 N
 
