@@ -98,7 +98,9 @@ Enhanced Session Mode is a feature that dramatically improves the day-to-day exp
 
 **To enable Enhanced Session Mode:**
 
-In Hyper-V Manager, click on your host name in the left pane, then click **Hyper-V Settings** in the right pane. Under "Server", enable **Allow enhanced session mode**. Under "User", enable **Use enhanced session mode**.
+On **Windows 10 and Windows 11 hosts**, Enhanced Session Mode is enabled by default -- you don't need to change anything.
+
+On **Windows Server hosts**, you need to enable it manually: in Hyper-V Manager, click on your host name in the left pane, then click **Hyper-V Settings** in the Actions pane on the right. In the Settings dialog, expand the **Server** section in the left tree and select **Enhanced Session Mode Policy** -- check **Allow enhanced session mode**. Then expand the **User** section and select **Enhanced Session Mode** -- check **Use enhanced session mode**. Click OK.
 
 > **Note:** Enhanced Session Mode requires the guest OS to support it. Windows 8/10/11 and Windows Server 2012 and later support it out of the box. For Linux, you need to install the `xrdp` package and the `hyperv-daemons` package, then enable the services.
 
